@@ -40,7 +40,11 @@ def find_minimal(regular_string, myx, mlen):
                 np._ans = fst._ans + snd._min_word
                 for s1 in fst._prefix_set:
                     np._prefix_set.add((s1[0], s1[1] + snd._min_word))
+                    if s1[0] != s1[1]:
+                        continue
                     for s2 in snd._prefix_set:
+                        if s2[0] != s2[1]:
+                            continue
                         nvar = s1[0] + s2[0]
                         np._prefix_set.add((nvar, s1[1] + s2[1]))
                         if nvar >= mlen:
