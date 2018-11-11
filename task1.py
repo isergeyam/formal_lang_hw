@@ -43,8 +43,6 @@ def find_minimal(regular_string, myx, mlen):
                     if s1[0] != s1[1]:
                         continue
                     for s2 in snd._prefix_set:
-                        if s2[0] != s2[1]:
-                            continue
                         nvar = s1[0] + s2[0]
                         np._prefix_set.add((nvar, s1[1] + s2[1]))
                         if nvar >= mlen:
