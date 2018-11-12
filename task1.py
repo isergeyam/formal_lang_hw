@@ -8,8 +8,6 @@ class LangData(object):
     """Docstring for LangData. """
 
     def __init__(self, prefix_set, ans, min_word):
-        # if pos_prefix == None:
-        #     pos_prefix = set()
         """Init LangData
 
         :prefix_set: possible prefix set
@@ -20,7 +18,7 @@ class LangData(object):
         self._prefix_set = prefix_set
         self._ans = ans
         self._min_word = min_word
-        # self._pos_prefix = pos_prefix
+
     def __str__(self):
         return str(self._prefix_set) + ' ' + str(self._ans) + ' ' + str(
             self._min_word)
@@ -111,7 +109,6 @@ def get_reg_str(reg):
 
 def main():
     print(find_minimal(input(), input(), int(input())))
-    #print(get_reg_str(input()))
 
 
 if __name__ == '__main__':
