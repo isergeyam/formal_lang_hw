@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import sys
 
-inf = 10**100
+inf = 10 ** 100
 
 
 class LangData(object):
@@ -15,13 +15,49 @@ class LangData(object):
         :min_word: minimal word in language
 
         """
-        self._prefix_set = prefix_set
-        self._ans = ans
-        self._min_word = min_word
+        self.prefix_set = prefix_set
+        self.ans = ans
+        self.min_word = min_word
 
     def __str__(self):
-        return str(self._prefix_set) + ' ' + str(self._ans) + ' ' + str(
-            self._min_word)
+        return str(self.prefix_set) + ' ' + str(self.ans) + ' ' + str(
+            self.min_word)
+
+
+def concat_langs(fst, snd, mlen):
+    np = LangData(set(), inf, inf)
+    np.min_word = fst.min_word + snd.min_word
+    np.ans = fst.ans + snd.min_word
+    for s1 in fst.prefix_set:
+        np.prefix_set.add((s1[0], s1[1] + snd.min_word))
+        if s1[0] != s1[1]:
+            continue
+        for s2 in snd.prefix_set:
+            nvar = s1[0] + s2[0]
+            np.prefix_set.add((nvar, s1[1] + s2[1]))
+            if nvar >= mlen:
+                np.ans = min(np.ans, s1[1] + s2[1])
+    return np
+
+
+def unite_langs(fst, snd):
+    np = LangData(set(), inf, inf)
+    np.min_word = min(fst.min_word, snd.min_word)
+    np.ans = min(fst.ans, snd.ans)
+    np.prefix_set = fst.prefix_set | snd.prefix_set
+    return np
+
+
+def asteriks_lang(cur, mlen):
+    np = LangData(set(), inf, inf)
+    np.min_word = 0
+    np.prefix_set.add((0, 0))
+    cur_power = cur
+    for i in range(mlen):
+        ncur_power = concat_langs(cur_power, cur, mlen)
+        np = unite_langs(np, cur_power)
+        cur_power = ncur_power
+    return np
 
 
 def find_minimal(regular_string, myx, mlen):
@@ -32,47 +68,16 @@ def find_minimal(regular_string, myx, mlen):
             if symbol == ' ':
                 continue
             elif symbol == '.':
-                np = LangData(set(), inf, inf)
                 snd, fst = lang_stack.pop(), lang_stack.pop()
-                np._min_word = fst._min_word + snd._min_word
-                np._ans = fst._ans + snd._min_word
-                for s1 in fst._prefix_set:
-                    np._prefix_set.add((s1[0], s1[1] + snd._min_word))
-                    if s1[0] != s1[1]:
-                        continue
-                    for s2 in snd._prefix_set:
-                        nvar = s1[0] + s2[0]
-                        np._prefix_set.add((nvar, s1[1] + s2[1]))
-                        if nvar >= mlen:
-                            np._ans = min(np._ans, s1[1] + s2[1])
-                lang_stack.append(np)
+                lang_stack.append(concat_langs(fst, snd, mlen))
             elif symbol == '+':
-                np = LangData(set(), inf, inf)
                 snd, fst = lang_stack.pop(), lang_stack.pop()
-                np._min_word = min(fst._min_word, snd._min_word)
-                np._ans = min(fst._ans, snd._ans)
-                np._prefix_set = fst._prefix_set | snd._prefix_set
-                lang_stack.append(np)
+                lang_stack.append(unite_langs(fst, snd))
             elif symbol == '*':
-                np = LangData(set(), inf, inf)
-                cur = lang_stack.pop()
-                np._ans = cur._ans
-                np._min_word = 0
-                np._prefix_set.add((0, 0))
-                for s in cur._prefix_set:
-                    if s[0] != s[1] or s[0] == 0:
-                        np._prefix_set.add(s)
-                        continue
-                    ns = s[0]
-                    while ns - s[0] < mlen:
-                        np._prefix_set.add((ns, ns))
-                        if ns >= mlen:
-                            np._ans = min(np._ans, ns)
-                        ns += s[0]
-                lang_stack.append(np)
+                lang_stack.append(asteriks_lang(lang_stack.pop(), mlen))
             elif symbol == '1':
                 lang_stack.append(LangData(set(), inf, 0))
-                lang_stack[-1]._prefix_set.add((0, 0))
+                lang_stack[-1].prefix_set.add((0, 0))
             else:
                 reg_stack.append(symbol)
                 if symbol != 'a' and symbol != 'b' and symbol != 'c':
@@ -80,18 +85,18 @@ def find_minimal(regular_string, myx, mlen):
                     sys.exit(0)
                 lang_stack.append(LangData(set(), inf, 1))
                 if symbol == myx:
-                    lang_stack[-1]._prefix_set.add((1, 1))
+                    lang_stack[-1].prefix_set.add((1, 1))
                     if mlen == 1:
-                        lang_stack[-1]._ans = 1
+                        lang_stack[-1].ans = 1
     except IndexError:
         print('ERROR')
         sys.exit(0)
     if len(lang_stack) != 1:
         print('ERROR')
         sys.exit(0)
-    if lang_stack[0]._ans >= inf:
+    if lang_stack[0].ans >= inf:
         return 'INF'
-    return lang_stack[0]._ans
+    return lang_stack[0].ans
 
 
 def get_reg_str(reg):
