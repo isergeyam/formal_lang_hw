@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import sys
 
-inf = 10 ** 100
+inf = 10**100
 
 
 class LangData(object):
