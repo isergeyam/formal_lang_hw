@@ -11,7 +11,7 @@ class LangData(object):
         """Init LangData
 
         :prefix_set: possible prefix set
-        :ans: answer for language. if exists. Otherwise, INF
+        :ans: answer for language, if exists. Otherwise, INF
         :min_word: minimal word in language
 
         """
@@ -49,9 +49,8 @@ def unite_langs(fst, snd):
 
 
 def asteriks_lang(cur, mlen):
-    np = LangData(set(), inf, inf)
+    np = LangData({(0, 0)}, inf, inf)
     np.min_word = 0
-    np.prefix_set.add((0, 0))
     cur_power = cur
     for i in range(mlen):
         ncur_power = concat_langs(cur_power, cur, mlen)
@@ -76,8 +75,7 @@ def find_minimal(regular_string, myx, mlen):
             elif symbol == '*':
                 lang_stack.append(asteriks_lang(lang_stack.pop(), mlen))
             elif symbol == '1':
-                lang_stack.append(LangData(set(), inf, 0))
-                lang_stack[-1].prefix_set.add((0, 0))
+                lang_stack.append(LangData({(0, 0)}, inf, 0))
             else:
                 reg_stack.append(symbol)
                 if symbol != 'a' and symbol != 'b' and symbol != 'c':
